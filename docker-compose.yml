@@ -1,0 +1,51 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: teste_onfly_app
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:8000"
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: teste_onfly
+      DB_USERNAME: teste_onfly
+      DB_PASSWORD: secret
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - teste_onfly
+
+  db:
+    image: mysql:9.7
+    container_name: teste_onfly_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: teste_onfly
+      MYSQL_USER: teste_onfly
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - teste_onfly
+
+networks:
+  teste_onfly:
+    driver: bridge
+
+volumes:
+  db_data:
