@@ -17,7 +17,9 @@ return new class extends Migration
                 ->constrained()
                 ->restrictOnDelete()
                 ->cascadeOnUpdate();
-            $table->string('destination');
+            $table->string('destination_country');
+            $table->string('destination_state')->nullable();
+            $table->string('destination_city');
             $table->date('departure_date');
             $table->date('return_date');
             $table->string('status')->default('requested');
@@ -26,7 +28,9 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index('status');
-            $table->index('destination');
+            $table->index('destination_country');
+            $table->index('destination_state');
+            $table->index('destination_city');
             $table->index(['departure_date', 'return_date']);
             $table->index(['user_id', 'status']);
         });

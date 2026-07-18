@@ -4,15 +4,23 @@ namespace App\Models;
 
 use App\Enums\TravelOrderStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['user_id', 'destination', 'departure_date', 'return_date', 'status', 'cancellation_reason'])]
+#[Fillable(['user_id', 'destination_country', 'destination_state', 'destination_city', 'departure_date', 'return_date', 'status', 'cancellation_reason'])]
 class TravelOrder extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
+
+    /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'status' => 'requested',
+    ];
 
     /**
      * @return array<string, string>

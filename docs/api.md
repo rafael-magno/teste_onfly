@@ -5,7 +5,7 @@ Este documento é a especificação (entradas/saídas) usada como base para os t
 ## Convenções gerais
 
 - Base path: `/api`
-- Autenticação: `Authorization: Bearer <token>` (Laravel Sanctum), via middleware `auth:sanctum`.
+- Autenticação: `Authorization: Bearer <token>` (JWT via `php-open-source-saver/jwt-auth`), via middleware `auth:api` (guard `api` configurado com driver `jwt`).
 - Autorização por papel: `users.role` (`user` | `admin`), verificada em `App\Policies\TravelOrderPolicy`.
 - Content-Type: `application/json` em todas as requisições e respostas.
 - Envelope de recurso único: `{ "data": { ... } }`.
@@ -26,7 +26,7 @@ Este documento é a especificação (entradas/saídas) usada como base para os t
 
 `routes/api.php` (esboço, ainda não criado):
 ```php
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:api')->group(function () {
     Route::apiResource('travel-orders', TravelOrderController::class)
         ->only(['store', 'show', 'index']);
 
@@ -42,17 +42,21 @@ Route::middleware('auth:sanctum')->group(function () {
 **Request body**
 ```json
 {
-  "destination": "São Paulo, SP",
+  "destination_country": "Brasil",
+  "destination_state": "SP",
+  "destination_city": "São Paulo",
   "departure_date": "2026-08-10",
   "return_date": "2026-08-15"
 }
 ```
-O solicitante (`user_id`) é sempre o usuário autenticado — não é um campo de entrada.
+O solicitante (`user_id`) é sempre o usuário autenticado — não é um campo de entrada. `destination_state` é opcional (nem todo país tem o conceito de estado/província).
 
 **Validação (`StoreTravelOrderRequest`)**
 | Campo | Regras |
 |---|---|
-| `destination` | `required`, `string`, `max:255` |
+| `destination_country` | `required`, `string`, `max:255` |
+| `destination_state` | `nullable`, `string`, `max:255` |
+| `destination_city` | `required`, `string`, `max:255` |
 | `departure_date` | `required`, `date`, `after_or_equal:today` |
 | `return_date` | `required`, `date`, `after:departure_date` |
 
@@ -62,7 +66,9 @@ O solicitante (`user_id`) é sempre o usuário autenticado — não é um campo 
   "data": {
     "id": 1,
     "requester": { "id": 5, "name": "Rafael Magno" },
-    "destination": "São Paulo, SP",
+    "destination_country": "Brasil",
+    "destination_state": "SP",
+    "destination_city": "São Paulo",
     "departure_date": "2026-08-10",
     "return_date": "2026-08-15",
     "status": "requested",
@@ -85,7 +91,9 @@ O solicitante (`user_id`) é sempre o usuário autenticado — não é um campo 
 | Param | Tipo | Descrição |
 |---|---|---|
 | `status` | `requested\|approved\|cancelled` | Filtra por status |
-| `destination` | string | Busca parcial (`LIKE %valor%`) |
+| `destination_country` | string | Busca parcial (`LIKE %valor%`) |
+| `destination_state` | string | Busca parcial (`LIKE %valor%`) |
+| `destination_city` | string | Busca parcial (`LIKE %valor%`) |
 | `departure_from` / `departure_to` | `date` | Faixa de data de ida |
 | `return_from` / `return_to` | `date` | Faixa de data de volta |
 | `per_page` | int (1–100, padrão 15) | Tamanho de página |
@@ -100,7 +108,9 @@ Usuário `user` sempre recebe apenas seus próprios pedidos (filtro `user_id` fi
     {
       "id": 1,
       "requester": { "id": 5, "name": "Rafael Magno" },
-      "destination": "São Paulo, SP",
+      "destination_country": "Brasil",
+      "destination_state": "SP",
+      "destination_city": "São Paulo",
       "departure_date": "2026-08-10",
       "return_date": "2026-08-15",
       "status": "requested",
@@ -138,7 +148,9 @@ Usuário `user` sempre recebe apenas seus próprios pedidos (filtro `user_id` fi
   "data": {
     "id": 1,
     "requester": { "id": 5, "name": "Rafael Magno" },
-    "destination": "São Paulo, SP",
+    "destination_country": "Brasil",
+    "destination_state": "SP",
+    "destination_city": "São Paulo",
     "departure_date": "2026-08-10",
     "return_date": "2026-08-15",
     "status": "approved",
@@ -147,11 +159,16 @@ Usuário `user` sempre recebe apenas seus próprios pedidos (filtro `user_id` fi
     "updated_at": "2026-07-17T22:00:00Z",
     "status_histories": [
       {
-        "from_status": "requested",
-        "to_status": "approved",
-        "changed_by": { "id": 1, "name": "Admin" },
+        "status": "requested",
+        "user_id": { "id": 5, "name": "Rafael Magno" },
         "reason": null,
         "created_at": "2026-07-17T22:00:00Z"
+      },
+      {
+        "status": "approved",
+        "user_id": { "id": 1, "name": "Admin" },
+        "reason": null,
+        "created_at": "2026-07-17T23:00:00Z"
       }
     ]
   }
@@ -170,8 +187,7 @@ Usuário `user` sempre recebe apenas seus próprios pedidos (filtro `user_id` fi
 **Request body**
 ```json
 {
-  "status": "approved",
-  "reason": null
+  "status": "approved"
 }
 ```
 ou
@@ -201,7 +217,9 @@ ou
   "data": {
     "id": 1,
     "requester": { "id": 5, "name": "Rafael Magno" },
-    "destination": "São Paulo, SP",
+    "destination_country": "Brasil",
+    "destination_state": "SP",
+    "destination_city": "São Paulo",
     "departure_date": "2026-08-10",
     "return_date": "2026-08-15",
     "status": "approved",
@@ -227,7 +245,7 @@ ou
 
 ## Casos de teste sugeridos (TDD)
 
-- **Store**: cria com sucesso; falha sem campos obrigatórios; falha com `return_date` antes de `departure_date`; falha com `departure_date` no passado; `user_id` sempre é o autenticado, ignorando qualquer valor enviado no payload.
+- **Store**: cria com sucesso; falha sem campos obrigatórios (`destination_country`, `destination_city`, `departure_date`, `return_date`); `destination_state` é opcional; falha com `return_date` antes de `departure_date`; falha com `departure_date` no passado; `user_id` sempre é o autenticado, ignorando qualquer valor enviado no payload.
 - **Show**: dono vê o próprio pedido; admin vê pedido de qualquer um; outro `user` recebe `403`; id inexistente recebe `404`.
-- **Index**: filtra por `status`; filtra por `destination` (parcial); filtra por faixa de datas; `user` só vê os próprios; `admin` vê todos; paginação respeita `per_page`.
+- **Index**: filtra por `status`; filtra por `destination_country`/`destination_state`/`destination_city` (parcial); filtra por faixa de datas; `user` só vê os próprios; `admin` vê todos; paginação respeita `per_page`.
 - **Status update**: admin aprova pedido `requested` com sucesso; admin cancela pedido `requested` com sucesso; admin tenta cancelar pedido `approved` → `409`; `user` (não-admin) tenta mudar status → `403`; solicitante tenta mudar status do próprio pedido → `403`; tentativa de transição para `requested` → `422`; pedido `cancelled` recebe nova tentativa de transição → `409`; cada transição bem-sucedida cria registro em `travel_order_status_histories`.
