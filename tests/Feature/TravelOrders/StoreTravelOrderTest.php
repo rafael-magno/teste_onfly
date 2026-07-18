@@ -55,6 +55,15 @@ class StoreTravelOrderTest extends TestCase
             'destination_city' => $payload['destination_city'],
             'status' => TravelOrderStatus::Requested->value,
         ]);
+
+        $this->assertDatabaseCount('travel_order_status_histories', 1);
+
+        $this->assertDatabaseHas('travel_order_status_histories', [
+            'travel_order_id' => $response->json('data.id'),
+            'user_id' => $user->id,
+            'status' => TravelOrderStatus::Requested->value,
+            'reason' => null,
+        ]);
     }
 
     public function test_destination_state_is_optional(): void
