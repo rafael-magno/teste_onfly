@@ -26,7 +26,6 @@ class TravelOrderResource extends JsonResource
             'departure_date' => $this->departure_date->toDateString(),
             'return_date' => $this->return_date->toDateString(),
             'status' => $this->status->value,
-            'cancellation_reason' => $this->cancellation_reason,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

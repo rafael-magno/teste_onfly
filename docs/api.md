@@ -72,7 +72,6 @@ O solicitante (`user_id`) é sempre o usuário autenticado — não é um campo 
     "departure_date": "2026-08-10",
     "return_date": "2026-08-15",
     "status": "requested",
-    "cancellation_reason": null,
     "created_at": "2026-07-17T21:40:00Z",
     "updated_at": "2026-07-17T21:40:00Z"
   }
@@ -114,7 +113,6 @@ Usuário `user` sempre recebe apenas seus próprios pedidos (filtro `user_id` fi
       "departure_date": "2026-08-10",
       "return_date": "2026-08-15",
       "status": "requested",
-      "cancellation_reason": null,
       "created_at": "2026-07-17T21:40:00Z",
       "updated_at": "2026-07-17T21:40:00Z"
     }
@@ -154,7 +152,6 @@ Usuário `user` sempre recebe apenas seus próprios pedidos (filtro `user_id` fi
     "departure_date": "2026-08-10",
     "return_date": "2026-08-15",
     "status": "approved",
-    "cancellation_reason": null,
     "created_at": "2026-07-17T21:40:00Z",
     "updated_at": "2026-07-17T22:00:00Z",
     "status_histories": [
@@ -223,7 +220,6 @@ ou
     "departure_date": "2026-08-10",
     "return_date": "2026-08-15",
     "status": "approved",
-    "cancellation_reason": null,
     "created_at": "2026-07-17T21:40:00Z",
     "updated_at": "2026-07-17T22:00:00Z"
   }

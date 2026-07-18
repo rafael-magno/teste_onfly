@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['user_id', 'destination_country', 'destination_state', 'destination_city', 'departure_date', 'return_date', 'status', 'cancellation_reason'])]
+#[Fillable(['user_id', 'destination_country', 'destination_state', 'destination_city', 'departure_date', 'return_date', 'status'])]
 class TravelOrder extends Model
 {
     use HasFactory, SoftDeletes;

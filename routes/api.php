@@ -10,4 +10,7 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware('auth:api')->group(function () {
     Route::post('travel-orders', [TravelOrderController::class, 'store']);
+
+    Route::patch('travel-orders/{travelOrder}/status', [TravelOrderController::class, 'updateStatus'])
+        ->middleware('can:updateStatus,travelOrder');
 });

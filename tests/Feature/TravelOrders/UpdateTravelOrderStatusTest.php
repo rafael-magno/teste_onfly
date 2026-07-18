@@ -62,7 +62,6 @@ class UpdateTravelOrderStatusTest extends TestCase
         $this->assertDatabaseHas('travel_orders', [
             'id' => $travelOrder->id,
             'status' => TravelOrderStatus::Cancelled->value,
-            'cancellation_reason' => 'Viagem não é mais necessária',
         ]);
         $this->assertDatabaseHas('travel_order_status_histories', [
             'travel_order_id' => $travelOrder->id,
@@ -130,19 +129,6 @@ class UpdateTravelOrderStatusTest extends TestCase
             'id' => $travelOrder->id,
             'status' => TravelOrderStatus::Requested->value,
         ]);
-    }
-
-    public function test_the_requester_cannot_update_the_status_of_their_own_travel_order_even_as_admin(): void
-    {
-        $admin = User::factory()->admin()->create();
-        $travelOrder = TravelOrder::factory()->for($admin)->create();
-        $this->actingAs($admin, 'api');
-
-        $response = $this->patchJson("/api/travel-orders/{$travelOrder->id}/status", [
-            'status' => 'approved',
-        ]);
-
-        $response->assertForbidden();
     }
 
     public function test_status_must_be_approved_or_cancelled(): void

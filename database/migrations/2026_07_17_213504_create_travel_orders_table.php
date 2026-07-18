@@ -23,7 +23,6 @@ return new class extends Migration
             $table->date('departure_date');
             $table->date('return_date');
             $table->string('status')->default('requested');
-            $table->text('cancellation_reason')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

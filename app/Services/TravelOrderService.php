@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
+use App\Enums\TravelOrderStatus;
+use App\Exceptions\InvalidTravelOrderStatusTransitionException;
 use App\Models\TravelOrder;
 use App\Models\TravelOrderStatusHistory;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class TravelOrderService
@@ -11,22 +14,44 @@ class TravelOrderService
     public function create(array $data): TravelOrder
     {
         return DB::transaction(function () use ($data) {
-            $travelOrder = TravelOrder::create($data);
+            $travelOrder = TravelOrder::create([
+                ...$data,
+                'user_id' => Auth::id(),
+            ]);
 
-            $this->recordHistory($travelOrder, $data['user_id']);
+            $this->recordHistory($travelOrder);
 
             return $travelOrder;
         });
     }
 
-    private function recordHistory(TravelOrder $travelOrder, int $userId, ?string $reason = null): void
+    public function updateStatus(
+        TravelOrder $travelOrder,
+        TravelOrderStatus $status,
+        ?string $reason = null,
+    ): TravelOrder {
+        if ($travelOrder->status !== TravelOrderStatus::Requested) {
+            throw new InvalidTravelOrderStatusTransitionException(
+                "Não é possível alterar o status de um pedido com status: {$travelOrder->status->value}."
+            );
+        }
+
+        return DB::transaction(function () use ($travelOrder, $status, $reason) {
+            $travelOrder->update(['status' => $status]);
+
+            $this->recordHistory($travelOrder, $reason);
+
+            return $travelOrder;
+        });
+    }
+
+    private function recordHistory(TravelOrder $travelOrder, ?string $reason = null): void
     {
         TravelOrderStatusHistory::create([
             'travel_order_id' => $travelOrder->id,
-            'user_id' => $userId,
+            'user_id' => Auth::id(),
             'status' => $travelOrder->status,
             'reason' => $reason,
-            'created_at' => $travelOrder->created_at,
         ]);
     }
 }

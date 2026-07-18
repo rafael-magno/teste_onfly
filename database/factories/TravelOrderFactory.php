@@ -30,7 +30,6 @@ class TravelOrderFactory extends Factory
             'departure_date' => $departureDate->format('Y-m-d'),
             'return_date' => $returnDate->format('Y-m-d'),
             'status' => TravelOrderStatus::Requested,
-            'cancellation_reason' => null,
         ];
     }
 
@@ -45,7 +44,6 @@ class TravelOrderFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => TravelOrderStatus::Cancelled,
-            'cancellation_reason' => fake()->sentence(),
         ]);
     }
 }
