@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\TravelOrderStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,5 +43,10 @@ class TravelOrder extends Model
     public function statusHistories(): HasMany
     {
         return $this->hasMany(TravelOrderStatusHistory::class);
+    }
+
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        return $user->isAdmin() ? $query : $query->where('user_id', $user->id);
     }
 }

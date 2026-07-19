@@ -9,7 +9,7 @@ use App\Models\TravelOrderStatusHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class TravelOrderService
+class TravelOrderWriteService
 {
     public function create(array $data): TravelOrder
     {
@@ -26,17 +26,19 @@ class TravelOrderService
     }
 
     public function updateStatus(
-        TravelOrder $travelOrder,
+        int $travelOrderId,
         TravelOrderStatus $status,
         ?string $reason = null,
     ): TravelOrder {
-        if ($travelOrder->status !== TravelOrderStatus::Requested) {
-            throw new InvalidTravelOrderStatusTransitionException(
-                "Não é possível alterar o status de um pedido com status: {$travelOrder->status->value}."
-            );
-        }
+        return DB::transaction(function () use ($travelOrderId, $status, $reason) {
+            $travelOrder = TravelOrder::findOrFail($travelOrderId);
 
-        return DB::transaction(function () use ($travelOrder, $status, $reason) {
+            if ($travelOrder->status !== TravelOrderStatus::Requested) {
+                throw new InvalidTravelOrderStatusTransitionException(
+                    "Não é possível alterar o status de um pedido com status: {$travelOrder->status->value}."
+                );
+            }
+
             $travelOrder->update(['status' => $status]);
 
             $this->recordHistory($travelOrder, $reason);

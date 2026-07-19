@@ -9,6 +9,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:api');
 
 Route::middleware('auth:api')->group(function () {
+    Route::get('travel-orders', [TravelOrderController::class, 'index']);
     Route::post('travel-orders', [TravelOrderController::class, 'store']);
 
     Route::patch('travel-orders/{travelOrder}/status', [TravelOrderController::class, 'updateStatus'])

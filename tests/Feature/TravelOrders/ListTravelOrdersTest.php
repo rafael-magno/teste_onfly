@@ -140,6 +140,18 @@ class ListTravelOrdersTest extends TestCase
         $response->assertJsonPath('meta.total', 5);
     }
 
+    public function test_it_changes_page(): void
+    {
+        $admin = User::factory()->admin()->create();
+        TravelOrder::factory()->count(3)->create();
+        $this->actingAs($admin, 'api');
+
+        $response = $this->getJson('/api/travel-orders?per_page=2&page=2');
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+    }
+
     public function test_invalid_status_filter_is_rejected(): void
     {
         $this->actingAs(User::factory()->create(), 'api');
