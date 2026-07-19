@@ -13,6 +13,6 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('travel-orders', TravelOrderController::class)
         ->only(['index', 'store', 'show']);
 
-    Route::patch('travel-orders/{travelOrder}/status', [TravelOrderController::class, 'updateStatus'])
+    Route::patch('travel-orders/{id}/status', [TravelOrderController::class, 'updateStatus'])
         ->middleware('can:updateStatus,'.TravelOrder::class);
 });
