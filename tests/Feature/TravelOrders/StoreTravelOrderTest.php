@@ -4,7 +4,9 @@ namespace Tests\Feature\TravelOrders;
 
 use App\Enums\TravelOrderStatus;
 use App\Models\User;
+use App\Notifications\TravelOrderStatusChangedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class StoreTravelOrderTest extends TestCase
@@ -26,6 +28,8 @@ class StoreTravelOrderTest extends TestCase
 
     public function test_authenticated_user_can_create_a_travel_order(): void
     {
+        Notification::fake();
+
         $user = User::factory()->create();
         $this->actingAs($user, 'api');
 
@@ -64,6 +68,8 @@ class StoreTravelOrderTest extends TestCase
             'status' => TravelOrderStatus::Requested->value,
             'reason' => null,
         ]);
+
+        Notification::assertSentTo($user, TravelOrderStatusChangedNotification::class);
     }
 
     public function test_destination_state_is_optional(): void

@@ -5,7 +5,9 @@ namespace Tests\Feature\TravelOrders;
 use App\Enums\TravelOrderStatus;
 use App\Models\TravelOrder;
 use App\Models\User;
+use App\Notifications\TravelOrderStatusChangedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class UpdateTravelOrderStatusTest extends TestCase
@@ -25,6 +27,7 @@ class UpdateTravelOrderStatusTest extends TestCase
 
     public function test_admin_can_approve_a_requested_travel_order(): void
     {
+        Notification::fake();
         $admin = User::factory()->admin()->create();
         $travelOrder = TravelOrder::factory()->create();
         $this->actingAs($admin, 'api');
@@ -35,15 +38,19 @@ class UpdateTravelOrderStatusTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonPath('data.status', TravelOrderStatus::Approved->value);
+
         $this->assertDatabaseHas('travel_orders', [
             'id' => $travelOrder->id,
             'status' => TravelOrderStatus::Approved->value,
         ]);
+
         $this->assertDatabaseHas('travel_order_status_histories', [
             'travel_order_id' => $travelOrder->id,
             'user_id' => $admin->id,
             'status' => TravelOrderStatus::Approved->value,
         ]);
+
+        Notification::assertSentTo($travelOrder->user, TravelOrderStatusChangedNotification::class);
     }
 
     public function test_admin_can_cancel_a_requested_travel_order(): void

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\TravelOrderStatus;
+use App\Events\TravelOrderStatusRecorded;
 use App\Exceptions\InvalidTravelOrderStatusTransitionException;
 use App\Models\TravelOrder;
 use App\Models\TravelOrderStatusHistory;
@@ -55,5 +56,7 @@ class TravelOrderWriteService
             'status' => $travelOrder->status,
             'reason' => $reason,
         ]);
+
+        TravelOrderStatusRecorded::dispatch($travelOrder);
     }
 }
