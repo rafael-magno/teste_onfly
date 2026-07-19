@@ -1,6 +1,6 @@
 # API de Pedidos de Viagem — Contrato
 
-Este documento é a especificação (entradas/saídas) usada como base para os testes (TDD). Nenhum controller/rota foi implementado ainda.
+Este documento é a especificação (entradas/saídas) da API, usada como base para os testes (TDD).
 
 ## Convenções gerais
 
@@ -19,23 +19,111 @@ Este documento é a especificação (entradas/saídas) usada como base para os t
 
 | Método | URI | Ação | Quem pode acessar |
 |---|---|---|---|
+| POST | `/api/login` | Autenticar e obter token JWT | Público |
+| POST | `/api/refresh` | Renovar o token JWT | Público (token no header) |
+| POST | `/api/logout` | Invalidar o token atual (blacklist) | Autenticado |
 | POST | `/api/travel-orders` | Criar pedido | Qualquer usuário autenticado |
 | GET | `/api/travel-orders` | Listar pedidos (com filtros) | Autenticado — `user` vê só os próprios; `admin` vê todos |
 | GET | `/api/travel-orders/{travelOrder}` | Detalhar pedido | Dono do pedido ou `admin` |
-| PATCH | `/api/travel-orders/{travelOrder}/status` | Aprovar/cancelar pedido | Somente `admin` (e nunca o próprio solicitante) |
+| PATCH | `/api/travel-orders/{travelOrder}/status` | Aprovar/cancelar pedido | Somente `admin` |
 
-`routes/api.php` (esboço, ainda não criado):
+`routes/api.php`:
 ```php
-Route::middleware('auth:api')->group(function () {
-    Route::apiResource('travel-orders', TravelOrderController::class)
-        ->only(['store', 'show', 'index']);
+Route::post('login', [AuthController::class, 'login']);
+Route::post('refresh', [AuthController::class, 'refresh']);
 
-    Route::patch('travel-orders/{travelOrder}/status', [TravelOrderStatusController::class, 'update'])
-        ->name('travel-orders.status.update');
+Route::middleware('auth:api')->group(function () {
+    Route::post('logout', [AuthController::class, 'logout']);
+
+    Route::resource('travel-orders', TravelOrderController::class)
+        ->only(['index', 'store', 'show']);
+
+    Route::patch('travel-orders/{id}/status', [TravelOrderController::class, 'updateStatus'])
+        ->middleware('can:updateStatus,'.TravelOrder::class);
 });
 ```
 
 ---
+
+## Autenticação
+
+### `POST /api/login` — Autenticar
+
+**Request body**
+```json
+{
+  "email": "rafael@example.com",
+  "password": "secret"
+}
+```
+
+**Validação (`LoginRequest`)**
+| Campo | Regras |
+|---|---|
+| `email` | `required`, `email` |
+| `password` | `required`, `string` |
+
+**Resposta de sucesso — `200 OK`**
+```json
+{
+  "data": {
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "token_type": "bearer",
+    "expires_in": 3600,
+    "user": {
+      "id": 5,
+      "name": "Rafael Magno",
+      "email": "rafael@example.com",
+      "role": "user"
+    }
+  }
+}
+```
+`expires_in` é em segundos (TTL do token, padrão 3600 = 60 min).
+
+**Erros**
+- `401` — credenciais inválidas: `{ "message": "Credenciais inválidas." }` (mensagem genérica, não revela se o erro foi no e-mail ou na senha).
+- `422` — `email`/`password` ausentes ou inválidos.
+
+---
+
+### `POST /api/refresh` — Renovar token
+
+Renova o token JWT, retornando um novo `access_token`. O token atual vai no header `Authorization: Bearer <token>`. Funciona mesmo com token já expirado, desde que dentro da janela de `refresh_ttl` (padrão 14 dias). Rota **fora** do middleware `auth:api` justamente para permitir renovar tokens expirados.
+
+> **Nota:** o `refresh` rotaciona para um token novo, mas **não** invalida imediatamente o token anterior (que permanece válido até expirar). A revogação explícita é feita via `POST /api/logout`.
+
+**Resposta de sucesso — `200 OK`**
+```json
+{
+  "data": {
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "token_type": "bearer",
+    "expires_in": 3600
+  }
+}
+```
+
+**Erros**
+- `401` — token ausente, inválido ou além da janela de refresh: `{ "message": "Não foi possível renovar o token." }`.
+
+---
+
+### `POST /api/logout` — Encerrar sessão
+
+Invalida (blacklist) o token atual. Após o logout, o token deixa de ser aceito em qualquer rota protegida (`401`).
+
+**Resposta de sucesso — `200 OK`**
+```json
+{ "message": "Logout realizado com sucesso." }
+```
+
+**Erros**
+- `401` — sem token / token inválido.
+
+---
+
+## Pedidos de viagem
 
 ### `POST /api/travel-orders` — Criar pedido de viagem
 
@@ -50,7 +138,7 @@ Route::middleware('auth:api')->group(function () {
 }
 ```
 O solicitante (`user_id`) é sempre o usuário autenticado — não é um campo de entrada. `destination_state` é opcional (nem todo país tem o conceito de estado/província).
-Grava uma linha em `travel_order_status_histories` (`user_id` = solicitante autenticado).
+Grava uma linha em `travel_order_status_histories` (`user_id` = solicitante autenticado) e notifica o solicitante por e-mail (job em fila, após o commit).
 
 **Validação (`StoreTravelOrderRequest`)**
 | Campo | Regras |
@@ -95,11 +183,10 @@ Grava uma linha em `travel_order_status_histories` (`user_id` = solicitante aute
 | `destination_state` | string | Busca parcial (`LIKE %valor%`) |
 | `destination_city` | string | Busca parcial (`LIKE %valor%`) |
 | `departure_from` / `departure_to` | `date` | Faixa de data de ida |
-| `return_from` / `return_to` | `date` | Faixa de data de volta |
 | `per_page` | int (1–100, padrão 15) | Tamanho de página |
-| `page` | int | Página atual |
+| `page` | int (min 1) | Página atual |
 
-Usuário `user` sempre recebe apenas seus próprios pedidos (filtro `user_id` fixado no backend, não é um input). Usuário `admin` recebe todos, podendo opcionalmente filtrar por `user_id` também.
+Usuário `user` sempre recebe apenas seus próprios pedidos (escopo `user_id` fixado no backend, não é um input). Usuário `admin` recebe todos.
 
 **Resposta de sucesso — `200 OK`**
 ```json
@@ -158,13 +245,13 @@ Usuário `user` sempre recebe apenas seus próprios pedidos (filtro `user_id` fi
     "status_histories": [
       {
         "status": "requested",
-        "user_id": { "id": 5, "name": "Rafael Magno" },
+        "user": { "id": 5, "name": "Rafael Magno" },
         "reason": null,
         "created_at": "2026-07-17T22:00:00Z"
       },
       {
         "status": "approved",
-        "user_id": { "id": 1, "name": "Admin" },
+        "user": { "id": 1, "name": "Admin" },
         "reason": null,
         "created_at": "2026-07-17T23:00:00Z"
       }
@@ -207,6 +294,7 @@ ou
 3. `approved → cancelled` **não é permitido** (regra "só cancela se ainda não foi aprovado") → `409`.
 4. `cancelled` é estado terminal (qualquer transição a partir dele) → `409`.
 5. Toda transição bem-sucedida grava uma linha em `travel_order_status_histories` (`user_id` = admin autenticado).
+6. Após a transição, o solicitante é notificado por e-mail (job em fila, disparado após o commit da transação). O mesmo acontece na criação do pedido.
 
 **Resposta de sucesso — `200 OK`**
 ```json

@@ -126,6 +126,25 @@ class ListTravelOrdersTest extends TestCase
         $response->assertJsonPath('data.0.id', $withinRange->id);
     }
 
+    public function test_it_combines_multiple_filters_with_and(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $matches = TravelOrder::factory()->approved()->create(['destination_city' => 'São Paulo']);
+        TravelOrder::factory()->create(['destination_city' => 'São Paulo']); // status não bate
+        TravelOrder::factory()->approved()->create(['destination_city' => 'Curitiba']); // cidade não bate
+        TravelOrder::factory()->create(['destination_city' => 'Curitiba']); // nenhum dos dois bate
+        $this->actingAs($admin, 'api');
+
+        $response = $this->getJson('/api/travel-orders?'.http_build_query([
+            'status' => 'approved',
+            'destination_city' => 'Paulo',
+        ]));
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('data.0.id', $matches->id);
+    }
+
     public function test_it_paginates_results(): void
     {
         $admin = User::factory()->admin()->create();
