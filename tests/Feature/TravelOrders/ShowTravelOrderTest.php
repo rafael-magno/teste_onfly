@@ -54,7 +54,7 @@ class ShowTravelOrderTest extends TestCase
 
         $response = $this->getJson("/api/travel-orders/{$travelOrder->id}");
 
-        $response->assertForbidden();
+        $response->assertNotFound();
     }
 
     public function test_viewing_a_nonexistent_travel_order_returns_404(): void

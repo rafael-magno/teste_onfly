@@ -50,6 +50,7 @@ Route::middleware('auth:api')->group(function () {
 }
 ```
 O solicitante (`user_id`) é sempre o usuário autenticado — não é um campo de entrada. `destination_state` é opcional (nem todo país tem o conceito de estado/província).
+Grava uma linha em `travel_order_status_histories` (`user_id` = solicitante autenticado).
 
 **Validação (`StoreTravelOrderRequest`)**
 | Campo | Regras |
@@ -174,8 +175,7 @@ Usuário `user` sempre recebe apenas seus próprios pedidos (filtro `user_id` fi
 
 **Erros**
 - `401` — sem autenticação.
-- `403` — usuário `user` tentando ver pedido de outro solicitante.
-- `404` — pedido inexistente.
+- `404` — pedido inexistente ou usuário `user` tentando ver pedido de outro solicitante.
 
 ---
 
@@ -202,11 +202,11 @@ ou
 | `reason` | `required_if:status,cancelled`, `string`, `max:255` |
 
 **Regras de negócio (`TravelOrderPolicy` + service)**
-1. Somente `admin` pode chamar este endpoint — inclusive o próprio solicitante do pedido, mesmo sendo admin de outra conta, não pode alterar o status do seu próprio pedido. → `403` caso viole.
+1. Somente `admin` pode chamar este endpoint. → `403` caso viole.
 2. Transições permitidas: `requested → approved`, `requested → cancelled`.
 3. `approved → cancelled` **não é permitido** (regra "só cancela se ainda não foi aprovado") → `409`.
 4. `cancelled` é estado terminal (qualquer transição a partir dele) → `409`.
-5. Toda transição bem-sucedida grava uma linha em `travel_order_status_histories` (`changed_by` = admin autenticado).
+5. Toda transição bem-sucedida grava uma linha em `travel_order_status_histories` (`user_id` = admin autenticado).
 
 **Resposta de sucesso — `200 OK`**
 ```json

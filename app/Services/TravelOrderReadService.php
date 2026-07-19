@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Auth;
 
 class TravelOrderReadService
 {
+    public function find(int $id): TravelOrder
+    {
+        return TravelOrder::query()
+            ->visibleTo(Auth::user())
+            ->with('statusHistories.user')
+            ->findOrFail($id);
+    }
+
     /**
      * @param  array<string, mixed>  $filters
      */

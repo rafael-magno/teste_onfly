@@ -8,7 +8,6 @@ use App\Http\Requests\IndexTravelOrderRequest;
 use App\Http\Requests\StoreTravelOrderRequest;
 use App\Http\Requests\UpdateTravelOrderStatusRequest;
 use App\Http\Resources\TravelOrderResource;
-use App\Models\TravelOrder;
 use App\Services\TravelOrderReadService;
 use App\Services\TravelOrderWriteService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -30,6 +29,17 @@ class TravelOrderController extends Controller
         return $this->respondSuccess(TravelOrderResource::collection($travelOrders));
     }
 
+    public function show(int $id): JsonResponse
+    {
+        try {
+            $order = $this->travelOrderReadService->find($id);
+        } catch (ModelNotFoundException $e) {
+            return $this->respondError('Pedido de viagem não encontrado.', Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->respondSuccess(TravelOrderResource::make($order));
+    }
+
     public function store(StoreTravelOrderRequest $request): JsonResponse
     {
         $travelOrder = $this->travelOrderWriteService->create($request->validated());
@@ -40,11 +50,11 @@ class TravelOrderController extends Controller
         );
     }
 
-    public function updateStatus(UpdateTravelOrderStatusRequest $request, int $travelOrder): JsonResponse
+    public function updateStatus(UpdateTravelOrderStatusRequest $request, int $id): JsonResponse
     {
         try {
             $travelOrder = $this->travelOrderWriteService->updateStatus(
-                $travelOrder,
+                $id,
                 TravelOrderStatus::from($request->status),
                 $request->reason ?? null,
             );

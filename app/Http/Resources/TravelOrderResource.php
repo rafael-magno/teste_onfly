@@ -28,6 +28,9 @@ class TravelOrderResource extends JsonResource
             'status' => $this->status->value,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'status_histories' => TravelOrderStatusHistoryResource::collection(
+                $this->whenLoaded('statusHistories')
+            ),
         ];
     }
 }
