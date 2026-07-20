@@ -123,6 +123,5 @@ Em desenvolvimento, os e-mails **não são enviados de verdade**: o `.env` apont
 
 ## Notas adicionais
 
-- **Padronização de código**: o projeto usa [Laravel Pint](https://laravel.com/docs/pint). Para checar/corrigir o estilo: `docker compose exec app ./vendor/bin/pint`.
 - **Fila**: `QUEUE_CONNECTION=database`. O container `queue` processa os jobs automaticamente; não é preciso rodar `queue:work` manualmente.
 - **Recriar o banco do zero** (dev): `docker compose exec app php artisan migrate:fresh --seed`.
