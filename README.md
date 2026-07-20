@@ -5,7 +5,7 @@
 - **Camada de serviço separada por responsabilidade**: `TravelOrderWriteService` (criação e transições de status, dentro de transação) e `TravelOrderReadService` (listagem, filtros e detalhamento). Leitura e escrita mudam por motivos diferentes, então vivem em classes diferentes.
 - **`status` como enum PHP** (`App\Enums\TravelOrderStatus`) persistido como `string`, em vez de `ENUM` nativo do MySQL — evita `ALTER TABLE` custoso ao evoluir os estados.
 - **Histórico**: cada transição (e a própria criação) grava uma linha em `travel_order_status_histories` registrando quem fez, qual status e por quê. `travel_orders` usa *soft deletes*.
-- **Regras de negócio no service**: transições válidas são `requested → approved` e `requested → cancelled`; cancelar um pedido já aprovado (ou alterar um já cancelado) retorna `409`.
+- **Regras de negócio no service**: transições válidas são `requested → approved` e `requested → cancelled`; cancelar um pedido já aprovado (ou alterar um já cancelado) retorna `409 Conflict`.
 - **Notificação por e-mail assíncrona**: a mudança de status dispara um *event* (`ShouldDispatchAfterCommit`) → *listener* (`ShouldQueue`) → `Notification`, processada por um worker de fila dedicado. O e-mail só sai depois do commit da transação.
 - **Validação em Form Requests**, serialização em **API Resources** (envelope `{ "data": ... }`), respostas de erro padronizadas.
 - **Documentação da API** gerada automaticamente com Scribe, a partir de anotações nos controllers.
@@ -78,13 +78,13 @@ curl http://localhost:8000/api/travel-orders \
 ## Executar os testes
 
 ```bash
-docker compose exec app php artisan test
+docker compose exec app composer test
 ```
 
 Rodar um arquivo/suíte específico:
 
 ```bash
-docker compose exec app php artisan test tests/Feature/TravelOrders/ListTravelOrdersTest.php
+docker compose exec app composer test tests/Feature/TravelOrders/ListTravelOrdersTest.php
 ```
 
 ### Desenvolvimento guiado por testes (TDD)
