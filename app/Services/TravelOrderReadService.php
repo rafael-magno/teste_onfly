@@ -34,25 +34,61 @@ class TravelOrderReadService
     private function applyFilters(Builder $query, array $filters): Builder
     {
         return $query->where(function (Builder $query) use ($filters) {
-            $likeFilters = ['destination_country', 'destination_state', 'destination_city'];
-
-            foreach ($likeFilters as $field) {
-                if ($filters[$field] ?? null) {
-                    $query->whereLike($field, '%'.$filters[$field].'%');
-                }
-            }
-
-            if ($filters['status'] ?? null) {
-                $query->where('status', $filters['status']);
-            }
-
-            if ($filters['departure_from'] ?? null) {
-                $query->whereDate('departure_date', '>=', $filters['departure_from']);
-            }
-
-            if ($filters['departure_to'] ?? null) {
-                $query->whereDate('departure_date', '<=', $filters['departure_to']);
-            }
+            $this->applyLikeFilters($query, $filters);
+            $this->applyStatusFilter($query, $filters);
+            $this->applyDateRangeFilter($query, $filters, 'departure_date', 'departure_from', 'departure_to');
+            $this->applyDateRangeFilter($query, $filters, 'return_date', 'return_from', 'return_to');
+            $this->applyOneWayFilter($query, $filters);
         });
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    private function applyLikeFilters(Builder &$query, array $filters): void
+    {
+        foreach (['destination_country', 'destination_state', 'destination_city'] as $field) {
+            if (!empty($filters[$field])) {
+                $query->whereLike($field, '%'.$filters[$field].'%');
+            }
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    private function applyStatusFilter(Builder &$query, array $filters): void
+    {
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    private function applyDateRangeFilter(Builder &$query, array $filters, string $column, string $fromKey, string $toKey): void
+    {
+        if (!empty($filters[$fromKey])) {
+            $query->whereDate($column, '>=', $filters[$fromKey]);
+        }
+
+        if (!empty($filters[$toKey])) {
+            $query->whereDate($column, '<=', $filters[$toKey]);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    private function applyOneWayFilter(Builder &$query, array $filters): void
+    {
+        if (! isset($filters['one_way']) || $filters['one_way'] === null) {
+            return;
+        }
+
+        filter_var($filters['one_way'], FILTER_VALIDATE_BOOLEAN)
+            ? $query->whereNull('return_date')
+            : $query->whereNotNull('return_date');
     }
 }

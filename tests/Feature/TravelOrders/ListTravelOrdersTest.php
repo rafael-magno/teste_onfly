@@ -171,14 +171,25 @@ class ListTravelOrdersTest extends TestCase
         $response->assertJsonCount(1, 'data');
     }
 
-    public function test_invalid_status_filter_is_rejected(): void
+    public function test_invalid_data_filter_is_rejected(): void
     {
         $this->actingAs(User::factory()->create(), 'api');
 
-        $response = $this->getJson('/api/travel-orders?status=invalid');
+        $invalidData = [
+            'status' => 'invalid',
+            'departure_from' => 'invalid',
+            'departure_to' => 'invalid',
+            'return_from' => 'invalid',
+            'return_to' => 'invalid',
+            'one_way' => 'invalid',
+            'per_page' => 'invalid',
+            'page' => 'invalid',
+        ];
+
+        $response = $this->getJson('/api/travel-orders?' . http_build_query($invalidData));
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['status']);
+        $response->assertJsonValidationErrors(array_keys($invalidData));
     }
 
     public function test_departure_to_must_not_be_before_departure_from(): void
@@ -219,5 +230,76 @@ class ListTravelOrdersTest extends TestCase
         $response = $this->getJson('/api/travel-orders?departure_from='.now()->addYear()->toDateString());
 
         $response->assertOk();
+    }
+
+    public function test_it_filters_by_return_date_range(): void
+    {
+        $admin = User::factory()->admin()->create();
+        TravelOrder::factory()->create(['return_date' => now()->addMonths(3)->toDateString()]);
+        $withinRange = TravelOrder::factory()->create(['return_date' => now()->addWeek()->toDateString()]);
+        $this->actingAs($admin, 'api');
+
+        $response = $this->getJson('/api/travel-orders?'.http_build_query([
+            'return_from' => now()->toDateString(),
+            'return_to' => now()->addMonth()->toDateString(),
+        ]));
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('data.0.id', $withinRange->id);
+    }
+
+    public function test_return_to_must_not_be_before_return_from(): void
+    {
+        $this->actingAs(User::factory()->admin()->create(), 'api');
+
+        $response = $this->getJson('/api/travel-orders?'.http_build_query([
+            'return_from' => now()->addMonth()->toDateString(),
+            'return_to' => now()->toDateString(),
+        ]));
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['return_to']);
+    }
+
+    public function test_one_way_true_returns_only_trips_without_a_return_date(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $oneWay = TravelOrder::factory()->oneWay()->create();
+        TravelOrder::factory()->create();
+        $this->actingAs($admin, 'api');
+
+        $response = $this->getJson('/api/travel-orders?one_way=1');
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('data.0.id', $oneWay->id);
+    }
+
+    public function test_one_way_false_returns_only_trips_with_a_return_date(): void
+    {
+        $admin = User::factory()->admin()->create();
+        TravelOrder::factory()->oneWay()->create();
+        $roundTrip = TravelOrder::factory()->create();
+        $this->actingAs($admin, 'api');
+
+        $response = $this->getJson('/api/travel-orders?one_way=0');
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('data.0.id', $roundTrip->id);
+    }
+
+    public function test_one_way_cannot_be_combined_with_return_date_range(): void
+    {
+        $this->actingAs(User::factory()->admin()->create(), 'api');
+
+        $response = $this->getJson('/api/travel-orders?'.http_build_query([
+            'one_way' => '1',
+            'return_from' => now()->toDateString(),
+        ]));
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['return_from']);
     }
 }

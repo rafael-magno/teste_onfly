@@ -183,10 +183,14 @@ Grava uma linha em `travel_order_status_histories` (`user_id` = solicitante aute
 | `destination_state` | string | Busca parcial (`LIKE %valor%`) |
 | `destination_city` | string | Busca parcial (`LIKE %valor%`) |
 | `departure_from` / `departure_to` | `date` | Faixa de data de ida |
+| `return_from` / `return_to` | `date` | Faixa de data de volta |
+| `one_way` | `0\|1\|true\|false` | `true`/`1`: só pedidos sem `return_date` (só ida); `false`/`0`: só pedidos com `return_date` |
 | `per_page` | int (1–100, padrão 15) | Tamanho de página |
 | `page` | int (min 1) | Página atual |
 
 Usuário `user` sempre recebe apenas seus próprios pedidos (escopo `user_id` fixado no backend, não é um input). Usuário `admin` recebe todos.
+
+`one_way` não pode ser combinado com `return_from`/`return_to` (`422` se os dois vierem juntos — um `return_date` nulo nunca cai dentro de uma faixa de data, então a combinação é contraditória).
 
 **Resposta de sucesso — `200 OK`**
 ```json
@@ -222,7 +226,7 @@ Usuário `user` sempre recebe apenas seus próprios pedidos (escopo `user_id` fi
 
 **Erros**
 - `401` — sem autenticação.
-- `422` — filtro inválido (ex.: `status` fora do enum, `departure_from` maior que `departure_to`).
+- `422` — filtro inválido (ex.: `status` fora do enum, `departure_from` maior que `departure_to`, `one_way` combinado com `return_from`/`return_to`).
 
 ---
 

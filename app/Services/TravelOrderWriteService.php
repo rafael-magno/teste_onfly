@@ -36,7 +36,7 @@ class TravelOrderWriteService
 
             if ($travelOrder->status !== TravelOrderStatus::Requested) {
                 throw new InvalidTravelOrderStatusTransitionException(
-                    "Não é possível alterar o status de um pedido com status: {$travelOrder->status->value}."
+                    "Não é possível alterar o status de um pedido com status: {$travelOrder->status->label()}."
                 );
             }
 
