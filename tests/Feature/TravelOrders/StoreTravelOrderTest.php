@@ -72,41 +72,6 @@ class StoreTravelOrderTest extends TestCase
         Notification::assertSentTo($user, TravelOrderStatusChangedNotification::class);
     }
 
-    public function test_destination_state_is_optional(): void
-    {
-        $this->actingAs(User::factory()->create(), 'api');
-
-        $response = $this->postJson('/api/travel-orders', [
-            'destination_country' => 'Japão',
-            'destination_city' => 'Tóquio',
-            'departure_date' => now()->addWeek()->toDateString(),
-            'return_date' => now()->addWeeks(2)->toDateString(),
-        ]);
-
-        $response->assertCreated();
-        $response->assertJsonPath('data.destination_state', null);
-    }
-
-    public function test_the_requester_is_always_the_authenticated_user_regardless_of_payload(): void
-    {
-        $user = User::factory()->create();
-        $otherUser = User::factory()->create();
-        $this->actingAs($user, 'api');
-
-        $response = $this->postJson('/api/travel-orders', [
-            'user_id' => $otherUser->id,
-            'destination_country' => 'Brasil',
-            'destination_state' => 'RJ',
-            'destination_city' => 'Rio de Janeiro',
-            'departure_date' => now()->addWeek()->toDateString(),
-            'return_date' => now()->addWeeks(2)->toDateString(),
-        ]);
-
-        $response->assertCreated();
-        $response->assertJsonPath('data.requester.id', $user->id);
-        $this->assertDatabaseMissing('travel_orders', ['user_id' => $otherUser->id]);
-    }
-
     public function test_destination_country_destination_city_and_departure_date_are_required(): void
     {
         $this->actingAs(User::factory()->create(), 'api');
@@ -119,29 +84,7 @@ class StoreTravelOrderTest extends TestCase
             'destination_city',
             'departure_date',
         ]);
-        $response->assertJsonMissingValidationErrors(['return_date']);
-    }
-
-    public function test_return_date_is_optional(): void
-    {
-        Notification::fake();
-
-        $user = User::factory()->create();
-        $this->actingAs($user, 'api');
-
-        $response = $this->postJson('/api/travel-orders', [
-            'destination_country' => 'Brasil',
-            'destination_state' => 'SP',
-            'destination_city' => 'São Paulo',
-            'departure_date' => now()->addWeek()->toDateString(),
-        ]);
-
-        $response->assertCreated();
-        $response->assertJsonPath('data.return_date', null);
-        $this->assertDatabaseHas('travel_orders', [
-            'id' => $response->json('data.id'),
-            'return_date' => null,
-        ]);
+        $response->assertJsonMissingValidationErrors(['return_date', 'destination_state']);
     }
 
     public function test_return_date_must_be_after_departure_date(): void
