@@ -1,58 +1,128 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## Decisões de implementação
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+- **Autenticação JWT** (`php-open-source-saver/jwt-auth`) com guard `api`, em vez de Sanctum — tokens stateless, com `login`, `refresh` e `logout` (blacklist).
+- **Autorização por papel** (`users.role`: `user` | `admin`) via `TravelOrderPolicy` e `scopeVisibleTo` na model. Admin altera status e enxerga todos os pedidos; usuário comum só cria e enxerga os próprios pedidos.
+- **Camada de serviço separada por responsabilidade**: `TravelOrderWriteService` (criação e transições de status, dentro de transação) e `TravelOrderReadService` (listagem, filtros e detalhamento). Leitura e escrita mudam por motivos diferentes, então vivem em classes diferentes.
+- **`status` como enum PHP** (`App\Enums\TravelOrderStatus`) persistido como `string`, em vez de `ENUM` nativo do MySQL — evita `ALTER TABLE` custoso ao evoluir os estados.
+- **Histórico**: cada transição (e a própria criação) grava uma linha em `travel_order_status_histories` registrando quem fez, qual status e por quê. `travel_orders` usa *soft deletes*.
+- **Regras de negócio no service**: transições válidas são `requested → approved` e `requested → cancelled`; cancelar um pedido já aprovado (ou alterar um já cancelado) retorna `409`.
+- **Notificação por e-mail assíncrona**: a mudança de status dispara um *event* (`ShouldDispatchAfterCommit`) → *listener* (`ShouldQueue`) → `Notification`, processada por um worker de fila dedicado. O e-mail só sai depois do commit da transação.
+- **Validação em Form Requests**, serialização em **API Resources** (envelope `{ "data": ... }`), respostas de erro padronizadas.
+- **Documentação da API** gerada automaticamente com Scribe, a partir de anotações nos controllers.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Requisitos
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- [Docker](https://www.docker.com/) e Docker Compose (v2)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Não é necessário ter PHP, Composer ou MySQL instalados localmente — tudo roda dentro dos containers.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Instalação e execução (local, via Docker)
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Clone o repositório e rode o script de setup a partir da raiz do projeto:
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+**Linux / macOS / Git Bash**
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+./setup.sh
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+**Windows (PowerShell)**
+```powershell
+.\setup.ps1
+```
 
-## Contributing
+Ao final, os serviços ficam disponíveis em:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Serviço | URL |
+|---|---|
+| API | http://localhost:8000/api |
+| Documentação (Scribe) | http://localhost:8000/docs |
+| Mailpit (caixa de e-mails) | http://localhost:8025 |
+| MySQL | `localhost:3306` |
 
-## Code of Conduct
+### Serviços do Docker Compose
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **app** — servidor HTTP (`php artisan serve`, porta 8000)
+- **queue** — worker da fila (`php artisan queue:work`), consome os jobs de e-mail
+- **db** — MySQL 9
+- **mailpit** — captura os e-mails enviados em ambiente de desenvolvimento
 
-## Security Vulnerabilities
+### Usuários criados pelo seeder
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Todos com a senha **`password`**:
 
-## License
+| E-mail | Papel |
+|---|---|
+| `admin@example.com` | admin |
+| `user1@example.com` | user |
+| `user2@example.com` | user |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Exemplo rápido de uso
+
+```bash
+# 1. Login → obtém o token JWT
+curl -X POST http://localhost:8000/api/login \
+  -H "Content-Type: application/json" -H "Accept: application/json" \
+  -d '{"email":"user1@example.com","password":"password"}'
+
+# 2. Usar o token nas rotas protegidas
+curl http://localhost:8000/api/travel-orders \
+  -H "Authorization: Bearer <TOKEN>" -H "Accept: application/json"
+```
+
+---
+
+## Executar os testes
+
+```bash
+docker compose exec app php artisan test
+```
+
+Rodar um arquivo/suíte específico:
+
+```bash
+docker compose exec app php artisan test tests/Feature/TravelOrders/ListTravelOrdersTest.php
+```
+
+### Desenvolvimento guiado por testes (TDD)
+
+O projeto foi desenvolvido seguindo **TDD**: para cada endpoint, os testes de *feature* foram escritos primeiro (fase vermelha), descrevendo o contrato esperado, e só então a implementação foi feita até passarem (fase verde). Além dos testes de feature (autenticação, CRUD, filtros, regras de transição de status, autorização), há testes de unidade para partes com lógica isolável — por exemplo, o conteúdo do e-mail de notificação. Os testes usam SQLite em memória (`RefreshDatabase`), então rodam sem depender do MySQL.
+
+---
+
+## Documentação da API (Scribe)
+
+A documentação interativa é gerada por [`knuckleswtf/scribe`](https://scribe.knuckles.wtf/) a partir de anotações nos controllers, e fica em **http://localhost:8000/docs**.
+
+Para regenerá-la após alterar endpoints:
+
+```bash
+docker compose exec app php artisan scribe:generate
+```
+
+---
+
+## Pacotes adicionais
+
+### `php-open-source-saver/jwt-auth`
+Pacote para autenticação JWT, fork mantido do `tymon/jwt-auth`, compatível com as versões atuais do Laravel.
+
+### `knuckleswtf/scribe` (dev)
+Gera a documentação da API automaticamente a partir dos Form Requests, Resources e anotações manuais — mantendo a doc próxima do código e reduzindo o risco de ela divergir da implementação. Publica uma página navegável em `/docs` além de uma coleção OpenAPI/Postman.
+
+---
+
+## Mailpit
+
+Em desenvolvimento, os e-mails **não são enviados de verdade**: o `.env` aponta o mailer para o **Mailpit** (`MAIL_HOST=mailpit`, `MAIL_PORT=1025`), um servidor SMTP de testes que captura toda mensagem enviada. Isso permite inspecionar visualmente os e-mails de notificação de mudança de status — com HTML renderizado — na interface web em **http://localhost:8025**, sem precisar vasculhar logs nem configurar um provedor real.
+
+---
+
+## Notas adicionais
+
+- **Padronização de código**: o projeto usa [Laravel Pint](https://laravel.com/docs/pint). Para checar/corrigir o estilo: `docker compose exec app ./vendor/bin/pint`.
+- **Fila**: `QUEUE_CONNECTION=database`. O container `queue` processa os jobs automaticamente; não é preciso rodar `queue:work` manualmente.
+- **Recriar o banco do zero** (dev): `docker compose exec app php artisan migrate:fresh --seed`.
