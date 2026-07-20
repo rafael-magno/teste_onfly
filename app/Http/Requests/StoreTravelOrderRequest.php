@@ -22,4 +22,28 @@ class StoreTravelOrderRequest extends FormRequest
             'return_date' => ['nullable', 'date', 'after_or_equal:departure_date'],
         ];
     }
+
+    /**
+     * Parameters for the request body, used for API documentation.
+     */
+    public function bodyParameters()
+    {
+        return [
+            'destination_country' => [
+                'example' => 'Brasil',
+            ],
+            'destination_state' => [
+                'example' => 'MG',
+            ],
+            'destination_city' => [
+                'example' => 'Belo Horizonte',
+            ],
+            'departure_date' => [
+                'example' => now()->addWeek()->toDateString(),
+            ],
+            'return_date' => [
+                'example' => now()->addWeeks(2)->toDateString(),
+            ],
+        ];
+    }
 }

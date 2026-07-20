@@ -46,4 +46,46 @@ class IndexTravelOrderRequest extends FormRequest
             'page' => ['sometimes', 'integer', 'min:1'],
         ];
     }
+
+    /**
+     * Parameters for the request body, used for API documentation.
+     */
+    public function queryParameters()
+    {
+        return [
+            'status' => [
+                'example' => 'requested',
+            ],
+            'destination_country' => [
+                'example' => 'Brasil',
+            ],
+            'destination_state' => [
+                'example' => 'MG',
+            ],
+            'destination_city' => [
+                'example' => 'Belo Horizonte',
+            ],
+            'departure_from' => [
+                'example' => now()->toDateString(),
+            ],
+            'departure_to' => [
+                'example' => now()->addWeeks(2)->toDateString(),
+            ],
+            'return_from' => [
+                'example' => now()->addWeeks(1)->toDateString(),
+            ],
+            'return_to' => [
+                'example' => now()->addWeeks(3)->toDateString(),
+            ],
+            'one_way' => [
+                'example' => 0,
+            ],
+            'per_page' => [
+                'example' => 15,
+            ],
+            'page' => [
+                'example' => 1,
+            ],
+        ];
+    }
 }

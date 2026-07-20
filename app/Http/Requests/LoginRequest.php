@@ -19,4 +19,19 @@ class LoginRequest extends FormRequest
             'password' => ['required', 'string'],
         ];
     }
+
+    /**
+     * Parameters for the request body, used for API documentation.
+     */
+    public function bodyParameters()
+    {
+        return [
+            'email' => [
+                'example' => 'admin@example.com',
+            ],
+            'password' => [
+                'example' => 'password',
+            ],
+        ];
+    }
 }

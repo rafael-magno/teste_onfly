@@ -31,7 +31,7 @@ endpoints:
         name: email
         description: 'Must be a valid email address.'
         required: true
-        example: gbailey@example.net
+        example: admin@example.com
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -42,15 +42,15 @@ endpoints:
         name: password
         description: ''
         required: true
-        example: '|]|{+-'
+        example: password
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      email: gbailey@example.net
-      password: '|]|{+-'
+      email: admin@example.com
+      password: password
     fileParameters: []
     responses:
       -
@@ -205,7 +205,7 @@ endpoints:
         name: status
         description: ''
         required: false
-        example: cancelled
+        example: requested
         type: string
         enumValues:
           - requested
@@ -219,7 +219,7 @@ endpoints:
         name: destination_country
         description: ''
         required: false
-        example: architecto
+        example: Brasil
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -230,7 +230,7 @@ endpoints:
         name: destination_state
         description: ''
         required: false
-        example: architecto
+        example: MG
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -241,7 +241,7 @@ endpoints:
         name: destination_city
         description: ''
         required: false
-        example: architecto
+        example: 'Belo Horizonte'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -252,7 +252,7 @@ endpoints:
         name: departure_from
         description: 'Must be a valid date.'
         required: false
-        example: '2026-07-20T20:05:41'
+        example: '2026-07-20'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -263,7 +263,7 @@ endpoints:
         name: departure_to
         description: 'Must be a valid date.'
         required: false
-        example: '2026-07-20T20:05:41'
+        example: '2026-08-03'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -274,7 +274,7 @@ endpoints:
         name: return_from
         description: 'Must be a valid date.'
         required: false
-        example: '2026-07-20T20:05:41'
+        example: '2026-07-27'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -285,7 +285,7 @@ endpoints:
         name: return_to
         description: 'Must be a valid date.'
         required: false
-        example: '2026-07-20T20:05:41'
+        example: '2026-08-10'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -296,13 +296,11 @@ endpoints:
         name: one_way
         description: ''
         required: false
-        example: 'true'
+        example: 0
         type: string
         enumValues:
-          - '0'
-          - '1'
-          - 'true'
-          - 'false'
+          - 0
+          - 1
         exampleWasSpecified: false
         nullable: false
         deprecated: false
@@ -311,7 +309,7 @@ endpoints:
         name: per_page
         description: 'Must be at least 1. Must not be greater than 100.'
         required: false
-        example: 22
+        example: 15
         type: integer
         enumValues: []
         exampleWasSpecified: false
@@ -322,24 +320,24 @@ endpoints:
         name: page
         description: 'Must be at least 1.'
         required: false
-        example: 67
+        example: 1
         type: integer
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanQueryParameters:
-      status: cancelled
-      destination_country: architecto
-      destination_state: architecto
-      destination_city: architecto
-      departure_from: '2026-07-20T20:05:41'
-      departure_to: '2026-07-20T20:05:41'
-      return_from: '2026-07-20T20:05:41'
-      return_to: '2026-07-20T20:05:41'
-      one_way: 'true'
-      per_page: 22
-      page: 67
+      status: requested
+      destination_country: Brasil
+      destination_state: MG
+      destination_city: 'Belo Horizonte'
+      departure_from: '2026-07-20'
+      departure_to: '2026-08-03'
+      return_from: '2026-07-27'
+      return_to: '2026-08-10'
+      one_way: 0
+      per_page: 15
+      page: 1
     bodyParameters: []
     cleanBodyParameters: []
     fileParameters: []
@@ -347,7 +345,7 @@ endpoints:
       -
         custom: []
         status: 200
-        content: '{"data":[{"id":23,"requester":{"id":24,"name":"Misael Runte"},"destination_country":"Kuwait","destination_state":"Mississippi","destination_city":"North Belle","departure_date":"2026-08-19","return_date":"2026-08-20","status":"requested","created_at":"2026-07-20T20:05:41.000000Z","updated_at":"2026-07-20T20:05:41.000000Z"},{"id":24,"requester":{"id":25,"name":"Miss Jazlyn Keebler III"},"destination_country":"Vietnam","destination_state":"Mississippi","destination_city":"Lake Amberland","departure_date":"2026-08-03","return_date":"2026-08-16","status":"requested","created_at":"2026-07-20T20:05:41.000000Z","updated_at":"2026-07-20T20:05:41.000000Z"}],"links":{"first":"\/?page=1","last":"\/?page=1","prev":null,"next":null},"meta":{"current_page":1,"from":1,"last_page":1,"links":[{"url":null,"label":"&laquo; Previous","page":null,"active":false},{"url":"\/?page=1","label":"1","page":1,"active":true},{"url":null,"label":"Next &raquo;","page":null,"active":false}],"path":"\/","per_page":15,"to":2,"total":2}}'
+        content: '{"data":[{"id":48,"requester":{"id":44,"name":"Belle Dickens"},"destination_country":"Palau","destination_state":"Indiana","destination_city":"East Chadrickfort","departure_date":"2026-08-13","return_date":"2026-08-25","status":"requested","created_at":"2026-07-20T22:56:38.000000Z","updated_at":"2026-07-20T22:56:38.000000Z"},{"id":49,"requester":{"id":45,"name":"Rogers Leuschke PhD"},"destination_country":"South Africa","destination_state":"Alabama","destination_city":"West Noahmouth","departure_date":"2026-08-19","return_date":"2026-08-26","status":"requested","created_at":"2026-07-20T22:56:38.000000Z","updated_at":"2026-07-20T22:56:38.000000Z"}],"links":{"first":"\/?page=1","last":"\/?page=1","prev":null,"next":null},"meta":{"current_page":1,"from":1,"last_page":1,"links":[{"url":null,"label":"&laquo; Previous","page":null,"active":false},{"url":"\/?page=1","label":"1","page":1,"active":true},{"url":null,"label":"Next &raquo;","page":null,"active":false}],"path":"\/","per_page":15,"to":2,"total":2}}'
         headers: []
         description: ''
     responseFields: []
@@ -387,7 +385,7 @@ endpoints:
         name: destination_country
         description: 'Must not be greater than 255 characters.'
         required: true
-        example: b
+        example: Brasil
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -398,7 +396,7 @@ endpoints:
         name: destination_state
         description: 'Must not be greater than 255 characters.'
         required: false
-        example: 'n'
+        example: MG
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -409,7 +407,7 @@ endpoints:
         name: destination_city
         description: 'Must not be greater than 255 characters.'
         required: true
-        example: g
+        example: 'Belo Horizonte'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -420,7 +418,7 @@ endpoints:
         name: departure_date
         description: 'Must be a valid date. Must be a date after or equal to <code>today</code>.'
         required: true
-        example: '2052-08-12'
+        example: '2026-07-27'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -431,24 +429,24 @@ endpoints:
         name: return_date
         description: 'Must be a valid date. Must be a date after or equal to <code>departure_date</code>.'
         required: false
-        example: '2052-08-12'
+        example: '2026-08-03'
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: true
         deprecated: false
     cleanBodyParameters:
-      destination_country: b
-      destination_state: 'n'
-      destination_city: g
-      departure_date: '2052-08-12'
-      return_date: '2052-08-12'
+      destination_country: Brasil
+      destination_state: MG
+      destination_city: 'Belo Horizonte'
+      departure_date: '2026-07-27'
+      return_date: '2026-08-03'
     fileParameters: []
     responses:
       -
         custom: []
         status: 201
-        content: '{"data":{"id":25,"requester":{"id":26,"name":"Jermaine Tillman"},"destination_country":"Austria","destination_state":"Colorado","destination_city":"Port Asiamouth","departure_date":"2026-08-15","return_date":"2026-08-16","status":"requested","created_at":"2026-07-20T20:05:41.000000Z","updated_at":"2026-07-20T20:05:41.000000Z"}}'
+        content: '{"data":{"id":50,"requester":{"id":46,"name":"Belle Dickens"},"destination_country":"Palau","destination_state":"Indiana","destination_city":"East Chadrickfort","departure_date":"2026-08-13","return_date":"2026-08-25","status":"requested","created_at":"2026-07-20T22:56:38.000000Z","updated_at":"2026-07-20T22:56:38.000000Z"}}'
         headers: []
         description: ''
     responseFields: []
@@ -501,7 +499,7 @@ endpoints:
       -
         custom: []
         status: 200
-        content: '{"data":{"id":26,"requester":{"id":27,"name":"Prof. Mina Bauch"},"destination_country":"Pakistan","destination_state":"Arkansas","destination_city":"Port Domenico","departure_date":"2026-08-13","return_date":"2026-08-26","status":"requested","created_at":"2026-07-20T20:05:41.000000Z","updated_at":"2026-07-20T20:05:41.000000Z"}}'
+        content: '{"data":{"id":51,"requester":{"id":47,"name":"Prof. Mina Bauch"},"destination_country":"Pakistan","destination_state":"Arkansas","destination_city":"Port Domenico","departure_date":"2026-08-13","return_date":"2026-08-26","status":"requested","created_at":"2026-07-20T22:56:38.000000Z","updated_at":"2026-07-20T22:56:38.000000Z"}}'
         headers: []
         description: ''
       -
@@ -559,7 +557,7 @@ endpoints:
         name: status
         description: ''
         required: true
-        example: cancelled
+        example: approved
         type: string
         enumValues:
           - approved
@@ -579,14 +577,14 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      status: cancelled
+      status: approved
       reason: b
     fileParameters: []
     responses:
       -
         custom: []
         status: 200
-        content: '{"data":{"id":27,"requester":{"id":28,"name":"Jermaine Tillman"},"destination_country":"Austria","destination_state":"Colorado","destination_city":"Port Asiamouth","departure_date":"2026-08-15","return_date":"2026-08-16","status":"requested","created_at":"2026-07-20T20:05:41.000000Z","updated_at":"2026-07-20T20:05:41.000000Z"}}'
+        content: '{"data":{"id":52,"requester":{"id":48,"name":"Jermaine Tillman"},"destination_country":"Austria","destination_state":"Colorado","destination_city":"Port Asiamouth","departure_date":"2026-08-15","return_date":"2026-08-16","status":"requested","created_at":"2026-07-20T22:56:38.000000Z","updated_at":"2026-07-20T22:56:38.000000Z"}}'
         headers: []
         description: ''
       -

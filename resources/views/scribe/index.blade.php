@@ -145,8 +145,8 @@ You can switch the language used with the tabs at the top right (or from the nav
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"email\": \"gbailey@example.net\",
-    \"password\": \"|]|{+-\"
+    \"email\": \"admin@example.com\",
+    \"password\": \"password\"
 }"
 </code></pre></div>
 
@@ -162,8 +162,8 @@ const headers = {
 };
 
 let body = {
-    "email": "gbailey@example.net",
-    "password": "|]|{+-"
+    "email": "admin@example.com",
+    "password": "password"
 };
 
 fetch(url, {
@@ -283,10 +283,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="email"                data-endpoint="POSTapi-login"
-               value="gbailey@example.net"
+               value="admin@example.com"
                data-component="body">
     <br>
-<p>Must be a valid email address. Example: <code>gbailey@example.net</code></p>
+<p>Must be a valid email address. Example: <code>admin@example.com</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>password</code></b>&nbsp;&nbsp;
@@ -295,10 +295,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="password"                data-endpoint="POSTapi-login"
-               value="|]|{+-"
+               value="password"
                data-component="body">
     <br>
-<p>Example: <code>|]|{+-</code></p>
+<p>Example: <code>password</code></p>
         </div>
         </form>
 
@@ -599,7 +599,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request GET \
-    --get "http://localhost:8000/api/travel-orders?status=cancelled&amp;destination_country=architecto&amp;destination_state=architecto&amp;destination_city=architecto&amp;departure_from=2026-07-20T20%3A05%3A41&amp;departure_to=2026-07-20T20%3A05%3A41&amp;return_from=2026-07-20T20%3A05%3A41&amp;return_to=2026-07-20T20%3A05%3A41&amp;one_way=true&amp;per_page=22&amp;page=67" \
+    --get "http://localhost:8000/api/travel-orders?status=requested&amp;destination_country=Brasil&amp;destination_state=MG&amp;destination_city=Belo+Horizonte&amp;departure_from=2026-07-20&amp;departure_to=2026-08-03&amp;return_from=2026-07-27&amp;return_to=2026-08-10&amp;one_way=0&amp;per_page=15&amp;page=1" \
     --header "Authorization: Bearer YOUR_AUTH_KEY" \
     --header "Content-Type: application/json" \
     --header "Accept: application/json"</code></pre></div>
@@ -611,17 +611,17 @@ You can check the Dev Tools console for debugging information.</code></pre>
 );
 
 const params = {
-    "status": "cancelled",
-    "destination_country": "architecto",
-    "destination_state": "architecto",
-    "destination_city": "architecto",
-    "departure_from": "2026-07-20T20:05:41",
-    "departure_to": "2026-07-20T20:05:41",
-    "return_from": "2026-07-20T20:05:41",
-    "return_to": "2026-07-20T20:05:41",
-    "one_way": "true",
-    "per_page": "22",
-    "page": "67",
+    "status": "requested",
+    "destination_country": "Brasil",
+    "destination_state": "MG",
+    "destination_city": "Belo Horizonte",
+    "departure_from": "2026-07-20",
+    "departure_to": "2026-08-03",
+    "return_from": "2026-07-27",
+    "return_to": "2026-08-10",
+    "one_way": "0",
+    "per_page": "15",
+    "page": "1",
 };
 Object.keys(params)
     .forEach(key =&gt; url.searchParams.append(key, params[key]));
@@ -649,34 +649,34 @@ fetch(url, {
 <code class="language-json" style="max-height: 300px;">{
     &quot;data&quot;: [
         {
-            &quot;id&quot;: 23,
+            &quot;id&quot;: 48,
             &quot;requester&quot;: {
-                &quot;id&quot;: 24,
-                &quot;name&quot;: &quot;Misael Runte&quot;
+                &quot;id&quot;: 44,
+                &quot;name&quot;: &quot;Belle Dickens&quot;
             },
-            &quot;destination_country&quot;: &quot;Kuwait&quot;,
-            &quot;destination_state&quot;: &quot;Mississippi&quot;,
-            &quot;destination_city&quot;: &quot;North Belle&quot;,
-            &quot;departure_date&quot;: &quot;2026-08-19&quot;,
-            &quot;return_date&quot;: &quot;2026-08-20&quot;,
+            &quot;destination_country&quot;: &quot;Palau&quot;,
+            &quot;destination_state&quot;: &quot;Indiana&quot;,
+            &quot;destination_city&quot;: &quot;East Chadrickfort&quot;,
+            &quot;departure_date&quot;: &quot;2026-08-13&quot;,
+            &quot;return_date&quot;: &quot;2026-08-25&quot;,
             &quot;status&quot;: &quot;requested&quot;,
-            &quot;created_at&quot;: &quot;2026-07-20T20:05:41.000000Z&quot;,
-            &quot;updated_at&quot;: &quot;2026-07-20T20:05:41.000000Z&quot;
+            &quot;created_at&quot;: &quot;2026-07-20T22:56:38.000000Z&quot;,
+            &quot;updated_at&quot;: &quot;2026-07-20T22:56:38.000000Z&quot;
         },
         {
-            &quot;id&quot;: 24,
+            &quot;id&quot;: 49,
             &quot;requester&quot;: {
-                &quot;id&quot;: 25,
-                &quot;name&quot;: &quot;Miss Jazlyn Keebler III&quot;
+                &quot;id&quot;: 45,
+                &quot;name&quot;: &quot;Rogers Leuschke PhD&quot;
             },
-            &quot;destination_country&quot;: &quot;Vietnam&quot;,
-            &quot;destination_state&quot;: &quot;Mississippi&quot;,
-            &quot;destination_city&quot;: &quot;Lake Amberland&quot;,
-            &quot;departure_date&quot;: &quot;2026-08-03&quot;,
-            &quot;return_date&quot;: &quot;2026-08-16&quot;,
+            &quot;destination_country&quot;: &quot;South Africa&quot;,
+            &quot;destination_state&quot;: &quot;Alabama&quot;,
+            &quot;destination_city&quot;: &quot;West Noahmouth&quot;,
+            &quot;departure_date&quot;: &quot;2026-08-19&quot;,
+            &quot;return_date&quot;: &quot;2026-08-26&quot;,
             &quot;status&quot;: &quot;requested&quot;,
-            &quot;created_at&quot;: &quot;2026-07-20T20:05:41.000000Z&quot;,
-            &quot;updated_at&quot;: &quot;2026-07-20T20:05:41.000000Z&quot;
+            &quot;created_at&quot;: &quot;2026-07-20T22:56:38.000000Z&quot;,
+            &quot;updated_at&quot;: &quot;2026-07-20T22:56:38.000000Z&quot;
         }
     ],
     &quot;links&quot;: {
@@ -808,10 +808,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="status"                data-endpoint="GETapi-travel-orders"
-               value="cancelled"
+               value="requested"
                data-component="query">
     <br>
-<p>Example: <code>cancelled</code></p>
+<p>Example: <code>requested</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>requested</code></li> <li><code>approved</code></li> <li><code>cancelled</code></li></ul>
             </div>
@@ -822,10 +822,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="destination_country"                data-endpoint="GETapi-travel-orders"
-               value="architecto"
+               value="Brasil"
                data-component="query">
     <br>
-<p>Example: <code>architecto</code></p>
+<p>Example: <code>Brasil</code></p>
             </div>
                                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>destination_state</code></b>&nbsp;&nbsp;
@@ -834,10 +834,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="destination_state"                data-endpoint="GETapi-travel-orders"
-               value="architecto"
+               value="MG"
                data-component="query">
     <br>
-<p>Example: <code>architecto</code></p>
+<p>Example: <code>MG</code></p>
             </div>
                                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>destination_city</code></b>&nbsp;&nbsp;
@@ -846,10 +846,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="destination_city"                data-endpoint="GETapi-travel-orders"
-               value="architecto"
+               value="Belo Horizonte"
                data-component="query">
     <br>
-<p>Example: <code>architecto</code></p>
+<p>Example: <code>Belo Horizonte</code></p>
             </div>
                                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>departure_from</code></b>&nbsp;&nbsp;
@@ -858,10 +858,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="departure_from"                data-endpoint="GETapi-travel-orders"
-               value="2026-07-20T20:05:41"
+               value="2026-07-20"
                data-component="query">
     <br>
-<p>Must be a valid date. Example: <code>2026-07-20T20:05:41</code></p>
+<p>Must be a valid date. Example: <code>2026-07-20</code></p>
             </div>
                                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>departure_to</code></b>&nbsp;&nbsp;
@@ -870,10 +870,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="departure_to"                data-endpoint="GETapi-travel-orders"
-               value="2026-07-20T20:05:41"
+               value="2026-08-03"
                data-component="query">
     <br>
-<p>Must be a valid date. Example: <code>2026-07-20T20:05:41</code></p>
+<p>Must be a valid date. Example: <code>2026-08-03</code></p>
             </div>
                                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>return_from</code></b>&nbsp;&nbsp;
@@ -882,10 +882,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="return_from"                data-endpoint="GETapi-travel-orders"
-               value="2026-07-20T20:05:41"
+               value="2026-07-27"
                data-component="query">
     <br>
-<p>Must be a valid date. Example: <code>2026-07-20T20:05:41</code></p>
+<p>Must be a valid date. Example: <code>2026-07-27</code></p>
             </div>
                                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>return_to</code></b>&nbsp;&nbsp;
@@ -894,10 +894,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="return_to"                data-endpoint="GETapi-travel-orders"
-               value="2026-07-20T20:05:41"
+               value="2026-08-10"
                data-component="query">
     <br>
-<p>Must be a valid date. Example: <code>2026-07-20T20:05:41</code></p>
+<p>Must be a valid date. Example: <code>2026-08-10</code></p>
             </div>
                                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>one_way</code></b>&nbsp;&nbsp;
@@ -906,12 +906,12 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="one_way"                data-endpoint="GETapi-travel-orders"
-               value="true"
+               value="0"
                data-component="query">
     <br>
-<p>Example: <code>true</code></p>
+<p>Example: <code>0</code></p>
 Must be one of:
-<ul style="list-style-type: square;"><li><code>0</code></li> <li><code>1</code></li> <li><code>true</code></li> <li><code>false</code></li></ul>
+<ul style="list-style-type: square;"><li><code>0</code></li> <li><code>1</code></li></ul>
             </div>
                                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>per_page</code></b>&nbsp;&nbsp;
@@ -920,10 +920,10 @@ Must be one of:
  &nbsp;
                 <input type="number" style="display: none"
                step="any"               name="per_page"                data-endpoint="GETapi-travel-orders"
-               value="22"
+               value="15"
                data-component="query">
     <br>
-<p>Must be at least 1. Must not be greater than 100. Example: <code>22</code></p>
+<p>Must be at least 1. Must not be greater than 100. Example: <code>15</code></p>
             </div>
                                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>page</code></b>&nbsp;&nbsp;
@@ -932,10 +932,10 @@ Must be one of:
  &nbsp;
                 <input type="number" style="display: none"
                step="any"               name="page"                data-endpoint="GETapi-travel-orders"
-               value="67"
+               value="1"
                data-component="query">
     <br>
-<p>Must be at least 1. Example: <code>67</code></p>
+<p>Must be at least 1. Example: <code>1</code></p>
             </div>
                 </form>
 
@@ -958,11 +958,11 @@ Must be one of:
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"destination_country\": \"b\",
-    \"destination_state\": \"n\",
-    \"destination_city\": \"g\",
-    \"departure_date\": \"2052-08-12\",
-    \"return_date\": \"2052-08-12\"
+    \"destination_country\": \"Brasil\",
+    \"destination_state\": \"MG\",
+    \"destination_city\": \"Belo Horizonte\",
+    \"departure_date\": \"2026-07-27\",
+    \"return_date\": \"2026-08-03\"
 }"
 </code></pre></div>
 
@@ -979,11 +979,11 @@ const headers = {
 };
 
 let body = {
-    "destination_country": "b",
-    "destination_state": "n",
-    "destination_city": "g",
-    "departure_date": "2052-08-12",
-    "return_date": "2052-08-12"
+    "destination_country": "Brasil",
+    "destination_state": "MG",
+    "destination_city": "Belo Horizonte",
+    "departure_date": "2026-07-27",
+    "return_date": "2026-08-03"
 };
 
 fetch(url, {
@@ -1002,19 +1002,19 @@ fetch(url, {
 
 <code class="language-json" style="max-height: 300px;">{
     &quot;data&quot;: {
-        &quot;id&quot;: 25,
+        &quot;id&quot;: 50,
         &quot;requester&quot;: {
-            &quot;id&quot;: 26,
-            &quot;name&quot;: &quot;Jermaine Tillman&quot;
+            &quot;id&quot;: 46,
+            &quot;name&quot;: &quot;Belle Dickens&quot;
         },
-        &quot;destination_country&quot;: &quot;Austria&quot;,
-        &quot;destination_state&quot;: &quot;Colorado&quot;,
-        &quot;destination_city&quot;: &quot;Port Asiamouth&quot;,
-        &quot;departure_date&quot;: &quot;2026-08-15&quot;,
-        &quot;return_date&quot;: &quot;2026-08-16&quot;,
+        &quot;destination_country&quot;: &quot;Palau&quot;,
+        &quot;destination_state&quot;: &quot;Indiana&quot;,
+        &quot;destination_city&quot;: &quot;East Chadrickfort&quot;,
+        &quot;departure_date&quot;: &quot;2026-08-13&quot;,
+        &quot;return_date&quot;: &quot;2026-08-25&quot;,
         &quot;status&quot;: &quot;requested&quot;,
-        &quot;created_at&quot;: &quot;2026-07-20T20:05:41.000000Z&quot;,
-        &quot;updated_at&quot;: &quot;2026-07-20T20:05:41.000000Z&quot;
+        &quot;created_at&quot;: &quot;2026-07-20T22:56:38.000000Z&quot;,
+        &quot;updated_at&quot;: &quot;2026-07-20T22:56:38.000000Z&quot;
     }
 }</code>
  </pre>
@@ -1110,10 +1110,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="destination_country"                data-endpoint="POSTapi-travel-orders"
-               value="b"
+               value="Brasil"
                data-component="body">
     <br>
-<p>Must not be greater than 255 characters. Example: <code>b</code></p>
+<p>Must not be greater than 255 characters. Example: <code>Brasil</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>destination_state</code></b>&nbsp;&nbsp;
@@ -1122,10 +1122,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="destination_state"                data-endpoint="POSTapi-travel-orders"
-               value="n"
+               value="MG"
                data-component="body">
     <br>
-<p>Must not be greater than 255 characters. Example: <code>n</code></p>
+<p>Must not be greater than 255 characters. Example: <code>MG</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>destination_city</code></b>&nbsp;&nbsp;
@@ -1134,10 +1134,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="destination_city"                data-endpoint="POSTapi-travel-orders"
-               value="g"
+               value="Belo Horizonte"
                data-component="body">
     <br>
-<p>Must not be greater than 255 characters. Example: <code>g</code></p>
+<p>Must not be greater than 255 characters. Example: <code>Belo Horizonte</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>departure_date</code></b>&nbsp;&nbsp;
@@ -1146,10 +1146,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="departure_date"                data-endpoint="POSTapi-travel-orders"
-               value="2052-08-12"
+               value="2026-07-27"
                data-component="body">
     <br>
-<p>Must be a valid date. Must be a date after or equal to <code>today</code>. Example: <code>2052-08-12</code></p>
+<p>Must be a valid date. Must be a date after or equal to <code>today</code>. Example: <code>2026-07-27</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>return_date</code></b>&nbsp;&nbsp;
@@ -1158,10 +1158,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="return_date"                data-endpoint="POSTapi-travel-orders"
-               value="2052-08-12"
+               value="2026-08-03"
                data-component="body">
     <br>
-<p>Must be a valid date. Must be a date after or equal to <code>departure_date</code>. Example: <code>2052-08-12</code></p>
+<p>Must be a valid date. Must be a date after or equal to <code>departure_date</code>. Example: <code>2026-08-03</code></p>
         </div>
         </form>
 
@@ -1212,9 +1212,9 @@ fetch(url, {
 
 <code class="language-json" style="max-height: 300px;">{
     &quot;data&quot;: {
-        &quot;id&quot;: 26,
+        &quot;id&quot;: 51,
         &quot;requester&quot;: {
-            &quot;id&quot;: 27,
+            &quot;id&quot;: 47,
             &quot;name&quot;: &quot;Prof. Mina Bauch&quot;
         },
         &quot;destination_country&quot;: &quot;Pakistan&quot;,
@@ -1223,8 +1223,8 @@ fetch(url, {
         &quot;departure_date&quot;: &quot;2026-08-13&quot;,
         &quot;return_date&quot;: &quot;2026-08-26&quot;,
         &quot;status&quot;: &quot;requested&quot;,
-        &quot;created_at&quot;: &quot;2026-07-20T20:05:41.000000Z&quot;,
-        &quot;updated_at&quot;: &quot;2026-07-20T20:05:41.000000Z&quot;
+        &quot;created_at&quot;: &quot;2026-07-20T22:56:38.000000Z&quot;,
+        &quot;updated_at&quot;: &quot;2026-07-20T22:56:38.000000Z&quot;
     }
 }</code>
  </pre>
@@ -1355,7 +1355,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"status\": \"cancelled\",
+    \"status\": \"approved\",
     \"reason\": \"b\"
 }"
 </code></pre></div>
@@ -1373,7 +1373,7 @@ const headers = {
 };
 
 let body = {
-    "status": "cancelled",
+    "status": "approved",
     "reason": "b"
 };
 
@@ -1393,9 +1393,9 @@ fetch(url, {
 
 <code class="language-json" style="max-height: 300px;">{
     &quot;data&quot;: {
-        &quot;id&quot;: 27,
+        &quot;id&quot;: 52,
         &quot;requester&quot;: {
-            &quot;id&quot;: 28,
+            &quot;id&quot;: 48,
             &quot;name&quot;: &quot;Jermaine Tillman&quot;
         },
         &quot;destination_country&quot;: &quot;Austria&quot;,
@@ -1404,8 +1404,8 @@ fetch(url, {
         &quot;departure_date&quot;: &quot;2026-08-15&quot;,
         &quot;return_date&quot;: &quot;2026-08-16&quot;,
         &quot;status&quot;: &quot;requested&quot;,
-        &quot;created_at&quot;: &quot;2026-07-20T20:05:41.000000Z&quot;,
-        &quot;updated_at&quot;: &quot;2026-07-20T20:05:41.000000Z&quot;
+        &quot;created_at&quot;: &quot;2026-07-20T22:56:38.000000Z&quot;,
+        &quot;updated_at&quot;: &quot;2026-07-20T22:56:38.000000Z&quot;
     }
 }</code>
  </pre>
@@ -1532,10 +1532,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="status"                data-endpoint="PATCHapi-travel-orders--id--status"
-               value="cancelled"
+               value="approved"
                data-component="body">
     <br>
-<p>Example: <code>cancelled</code></p>
+<p>Example: <code>approved</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>approved</code></li> <li><code>cancelled</code></li></ul>
         </div>
