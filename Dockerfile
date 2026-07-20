@@ -22,4 +22,4 @@ WORKDIR /var/www/html
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "if [ -f artisan ]; then php artisan serve --host=0.0.0.0 --port=8000; else tail -f /dev/null; fi"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
