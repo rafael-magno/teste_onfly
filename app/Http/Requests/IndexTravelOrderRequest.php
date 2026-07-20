@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class IndexTravelOrderRequest extends FormRequest
 {
@@ -20,7 +21,11 @@ class IndexTravelOrderRequest extends FormRequest
             'destination_state' => ['sometimes', 'string'],
             'destination_city' => ['sometimes', 'string'],
             'departure_from' => ['sometimes', 'date'],
-            'departure_to' => ['sometimes', 'date'],
+            'departure_to' => [
+                'sometimes',
+                'date',
+                Rule::when($this->filled('departure_from'), ['after_or_equal:departure_from']),
+            ],
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
             'page' => ['sometimes', 'integer', 'min:1'],
         ];

@@ -180,4 +180,44 @@ class ListTravelOrdersTest extends TestCase
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['status']);
     }
+
+    public function test_departure_to_must_not_be_before_departure_from(): void
+    {
+        $this->actingAs(User::factory()->admin()->create(), 'api');
+
+        $response = $this->getJson('/api/travel-orders?'.http_build_query([
+            'departure_from' => now()->addMonth()->toDateString(),
+            'departure_to' => now()->toDateString(),
+        ]));
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['departure_to']);
+    }
+
+    public function test_departure_from_equal_to_departure_to_is_allowed(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $sameDay = TravelOrder::factory()->create(['departure_date' => now()->addWeek()->toDateString()]);
+        $this->actingAs($admin, 'api');
+
+        $response = $this->getJson('/api/travel-orders?'.http_build_query([
+            'departure_from' => now()->addWeek()->toDateString(),
+            'departure_to' => now()->addWeek()->toDateString(),
+        ]));
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('data.0.id', $sameDay->id);
+    }
+
+    public function test_departure_from_alone_is_not_required_to_be_before_anything(): void
+    {
+        $admin = User::factory()->admin()->create();
+        TravelOrder::factory()->create();
+        $this->actingAs($admin, 'api');
+
+        $response = $this->getJson('/api/travel-orders?departure_from='.now()->addYear()->toDateString());
+
+        $response->assertOk();
+    }
 }
