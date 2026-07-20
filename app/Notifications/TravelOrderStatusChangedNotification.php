@@ -39,6 +39,6 @@ class TravelOrderStatusChangedNotification extends Notification
             $mail->line("Data de volta: {$this->travelOrder->return_date->format('d/m/Y')}");
         }
 
-        return $mail->salutation('Atenciosamente, <br>Equipe Onfly');
+        return $mail->salutation("Atenciosamente, Equipe Onfly");
     }
 }
