@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('destination_state')->nullable();
             $table->string('destination_city');
             $table->date('departure_date');
-            $table->date('return_date');
+            $table->date('return_date')->nullable();
             $table->string('status')->default('requested');
             $table->timestamps();
             $table->softDeletes();

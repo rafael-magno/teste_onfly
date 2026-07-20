@@ -33,6 +33,13 @@ class TravelOrderFactory extends Factory
         ];
     }
 
+    public function oneWay(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'return_date' => null,
+        ]);
+    }
+
     public function approved(): static
     {
         return $this->state(fn (array $attributes) => [

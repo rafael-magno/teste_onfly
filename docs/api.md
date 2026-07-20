@@ -137,7 +137,7 @@ Invalida (blacklist) o token atual. Após o logout, o token deixa de ser aceito 
   "return_date": "2026-08-15"
 }
 ```
-O solicitante (`user_id`) é sempre o usuário autenticado — não é um campo de entrada. `destination_state` é opcional (nem todo país tem o conceito de estado/província).
+O solicitante (`user_id`) é sempre o usuário autenticado — não é um campo de entrada. `destination_state` e `return_date` são opcionais (`destination_state` porque nem todo país tem o conceito de estado/província; `return_date` para contemplar viagens só de ida).
 Grava uma linha em `travel_order_status_histories` (`user_id` = solicitante autenticado) e notifica o solicitante por e-mail (job em fila, após o commit).
 
 **Validação (`StoreTravelOrderRequest`)**
@@ -147,7 +147,7 @@ Grava uma linha em `travel_order_status_histories` (`user_id` = solicitante aute
 | `destination_state` | `nullable`, `string`, `max:255` |
 | `destination_city` | `required`, `string`, `max:255` |
 | `departure_date` | `required`, `date`, `after_or_equal:today` |
-| `return_date` | `required`, `date`, `after:departure_date` |
+| `return_date` | `nullable`, `date`, `after:departure_date` |
 
 **Resposta de sucesso — `201 Created`**
 ```json
@@ -329,7 +329,7 @@ ou
 
 ## Casos de teste sugeridos (TDD)
 
-- **Store**: cria com sucesso; falha sem campos obrigatórios (`destination_country`, `destination_city`, `departure_date`, `return_date`); `destination_state` é opcional; falha com `return_date` antes de `departure_date`; falha com `departure_date` no passado; `user_id` sempre é o autenticado, ignorando qualquer valor enviado no payload.
+- **Store**: cria com sucesso; falha sem campos obrigatórios (`destination_country`, `destination_city`, `departure_date`); `destination_state` e `return_date` são opcionais; falha com `return_date` antes de `departure_date`; falha com `departure_date` no passado; `user_id` sempre é o autenticado, ignorando qualquer valor enviado no payload.
 - **Show**: dono vê o próprio pedido; admin vê pedido de qualquer um; outro `user` recebe `403`; id inexistente recebe `404`.
 - **Index**: filtra por `status`; filtra por `destination_country`/`destination_state`/`destination_city` (parcial); filtra por faixa de datas; `user` só vê os próprios; `admin` vê todos; paginação respeita `per_page`.
 - **Status update**: admin aprova pedido `requested` com sucesso; admin cancela pedido `requested` com sucesso; admin tenta cancelar pedido `approved` → `409`; `user` (não-admin) tenta mudar status → `403`; solicitante tenta mudar status do próprio pedido → `403`; tentativa de transição para `requested` → `422`; pedido `cancelled` recebe nova tentativa de transição → `409`; cada transição bem-sucedida cria registro em `travel_order_status_histories`.

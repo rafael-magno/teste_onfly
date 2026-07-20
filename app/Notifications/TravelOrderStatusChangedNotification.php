@@ -25,7 +25,7 @@ class TravelOrderStatusChangedNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        $mail = (new MailMessage)
             ->subject("Pedido de viagem #{$this->travelOrder->id} — {$this->travelOrder->status->label()}")
             ->greeting("Olá, {$notifiable->name}!")
             ->line("O status do seu pedido de viagem foi atualizado para: {$this->travelOrder->status->label()}.")
@@ -33,7 +33,12 @@ class TravelOrderStatusChangedNotification extends Notification
                 "Destino: {$this->travelOrder->destination_city}, ".
                 "{$this->travelOrder->destination_state} - {$this->travelOrder->destination_country}"
             )
-            ->line("Data de ida: {$this->travelOrder->departure_date->format('d/m/Y')}")
-            ->line("Data de volta: {$this->travelOrder->return_date->format('d/m/Y')}");
+            ->line("Data de ida: {$this->travelOrder->departure_date->format('d/m/Y')}");
+
+        if ($this->travelOrder->return_date) {
+            $mail->line("Data de volta: {$this->travelOrder->return_date->format('d/m/Y')}");
+        }
+
+        return $mail->salutation('Atenciosamente, <br>Equipe Onfly');
     }
 }
