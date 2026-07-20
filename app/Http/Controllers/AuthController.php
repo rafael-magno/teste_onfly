@@ -8,10 +8,16 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
+use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
+    /**
+     * @unauthenticated
+     * @responseFile docs/responses/login_200.json
+     * @response 401 {"message": "Credenciais inválidas."}
+     */
     public function login(LoginRequest $request): JsonResponse
     {
         if (! $token = Auth::guard('api')->attempt($request->validated())) {
@@ -24,10 +30,16 @@ class AuthController extends Controller
         ]));
     }
 
+    /**
+     * @responseFile docs/responses/refresh_200.json
+     * @response 401 {"message": "Não foi possível renovar o token."}
+     */
     public function refresh(): JsonResponse
     {
         try {
-            $token = Auth::guard('api')->refresh();
+            /** @var JWTGuard */
+            $guard = Auth::guard('api');
+            $token = $guard->refresh();
         } catch (JWTException $e) {
             return $this->respondError('Não foi possível renovar o token.', Response::HTTP_UNAUTHORIZED);
         }
@@ -35,12 +47,15 @@ class AuthController extends Controller
         return $this->respondSuccess(AuthTokenResource::make($this->tokenPayload($token)));
     }
 
+    /**
+     * @response 200 {"message": "Logout realizado com sucesso."}
+     */
     public function logout(): JsonResponse
     {
         Auth::guard('api')->logout();
 
         return $this->respondSuccess(JsonResource::make([
-            'message' => 'Logout realizado com sucesso.'
+            'message' => 'Logout realizado com sucesso.',
         ]));
     }
 
@@ -49,10 +64,13 @@ class AuthController extends Controller
      */
     private function tokenPayload(string $token): array
     {
+        /** @var JWTGuard */
+        $guard = Auth::guard('api');
+
         return [
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => Auth::guard('api')->factory()->getTTL() * 60,
+            'expires_in' => $guard->factory()->getTTL() * 60,
         ];
     }
 }

@@ -22,6 +22,10 @@ class TravelOrderController extends Controller
     ) {
     }
 
+    /**
+     * @apiResourceCollection App\Http\Resources\TravelOrderResource
+     * @apiResourceModel App\Models\TravelOrder paginate=15
+     */
     public function index(IndexTravelOrderRequest $request): JsonResponse
     {
         $travelOrders = $this->travelOrderReadService->list($request->validated());
@@ -29,6 +33,11 @@ class TravelOrderController extends Controller
         return $this->respondSuccess(TravelOrderResource::collection($travelOrders));
     }
 
+    /**
+     * @apiResource App\Http\Resources\TravelOrderResource
+     * @apiResourceModel App\Models\TravelOrder
+     * @response 404 {"message": "Pedido de viagem não encontrado."}
+     */
     public function show(int $id): JsonResponse
     {
         try {
@@ -40,6 +49,10 @@ class TravelOrderController extends Controller
         return $this->respondSuccess(TravelOrderResource::make($order));
     }
 
+    /**
+     * @apiResource App\Http\Resources\TravelOrderResource status=201
+     * @apiResourceModel App\Models\TravelOrder
+     */
     public function store(StoreTravelOrderRequest $request): JsonResponse
     {
         $travelOrder = $this->travelOrderWriteService->create($request->validated());
@@ -50,6 +63,12 @@ class TravelOrderController extends Controller
         );
     }
 
+    /**
+     * @apiResource App\Http\Resources\TravelOrderResource
+     * @apiResourceModel App\Models\TravelOrder
+     * @response 404 {"message": "Pedido de viagem não encontrado."}
+     * @response 409 {"message": "Não é possível alterar o status de um pedido com status: Aprovado."}
+     */
     public function updateStatus(UpdateTravelOrderStatusRequest $request, int $id): JsonResponse
     {
         try {
